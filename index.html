@@ -14,6 +14,11 @@
 </head>
 <body>
   <h2>Tra cứu SearchCode</h2>
+  
+  <div class="row" style="margin-top: 10px;">
+    <input id="qrFile" type="file" accept="image/*" />
+    <button id="btnQR">Đọc QR từ ảnh</button>
+  </div>
 
   <div class="row">
     <input id="code" placeholder="Nhập SearchCode..." />
@@ -32,8 +37,41 @@
     const codeEl = document.getElementById("code");
     const typeEl = document.getElementById("queryType");
     const btn = document.getElementById("btn");
+    const qrFileEl = document.getElementById("qrFile");
+    const btnQR = document.getElementById("btnQR");
     const out = document.getElementById("out");
     const statusEl = document.getElementById("status");
+
+    async function decodeQR() {
+      const file = qrFileEl.files?.[0];
+      if (!file) {
+        statusEl.textContent = "Chọn một ảnh QR trước.";
+        return;
+      }
+      statusEl.textContent = "Đang đọc QR...";
+      out.textContent = "{}";
+
+      const fd = new FormData();
+      fd.append("file", file);
+
+      try {
+        const res = await fetch("/api/decode-qr", { method: "POST", body: fd });
+        const data = await res.json();
+        if (!data.ok) {
+          statusEl.textContent = "Không đọc được QR.";
+          out.textContent = JSON.stringify(data, null, 2);
+          return;
+        }
+        // Nếu QR là URL, bạn có thể muốn parse lấy đoạn code tuỳ format.
+        // Ở đây: điền thẳng toàn bộ text vào ô SearchCode
+        codeEl.value = data.text;
+        statusEl.textContent = "Đã đọc QR. Đã điền vào ô SearchCode.";
+        out.textContent = JSON.stringify(data, null, 2);
+      } catch (e) {
+        statusEl.textContent = "Lỗi khi gọi API đọc QR.";
+        out.textContent = String(e);
+      }
+    }
 
     async function runSearch() {
       const searchCode = codeEl.value.trim();
@@ -71,6 +109,7 @@
     }
 
     btn.addEventListener("click", runSearch);
+    btnQR.addEventListener("click", decodeQR);
     codeEl.addEventListener("keydown", (e) => {
       if (e.key === "Enter") runSearch();
     });
