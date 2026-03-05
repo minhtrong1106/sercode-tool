@@ -7,6 +7,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 APP = Flask(__name__, static_folder="static")
+@APP.route("/")
+def home():
+    return send_from_directory("static", "index.html")
 
 GET_TOKEN_URL = "https://trace-open-api.motul.com.sg/cncop/ca/v1/applications/get-token"
 CODE_QUERY_URL = "https://trace-open-api.motul.com.sg/customer/mote/open/api/v1/codeQuery"
