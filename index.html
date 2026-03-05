@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SearchCode</title>
+  <style>
+    body { font-family: system-ui, Arial; max-width: 900px; margin: 24px auto; padding: 0 12px; }
+    input, select, button { padding: 10px; font-size: 16px; }
+    input { width: 420px; max-width: 100%; }
+    pre { background: #111; color: #eee; padding: 12px; overflow: auto; border-radius: 8px; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  </style>
+</head>
+<body>
+  <h2>Tra cứu SearchCode</h2>
+
+  <div class="row">
+    <input id="code" placeholder="Nhập SearchCode..." />
+    <select id="queryType">
+      <option value="2" selected>queryType = 2</option>
+      <option value="1">queryType = 1</option>
+      <option value="3">queryType = 3</option>
+    </select>
+    <button id="btn">Search</button>
+  </div>
+
+  <p id="status"></p>
+  <pre id="out">{}</pre>
+
+  <script>
+    const codeEl = document.getElementById("code");
+    const typeEl = document.getElementById("queryType");
+    const btn = document.getElementById("btn");
+    const out = document.getElementById("out");
+    const statusEl = document.getElementById("status");
+
+    async function runSearch() {
+      const searchCode = codeEl.value.trim();
+      const queryType = Number(typeEl.value);
+
+      if (!searchCode) {
+        statusEl.textContent = "Vui lòng nhập SearchCode.";
+        return;
+      }
+
+      statusEl.textContent = "Đang gọi API...";
+      out.textContent = "{}";
+
+      try {
+        const res = await fetch("/api/search", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ searchCode, queryType })
+        });
+
+        const data = await res.json();
+        if (!data.ok) {
+          statusEl.textContent = "Lỗi.";
+          out.textContent = JSON.stringify(data, null, 2);
+          return;
+        }
+
+        statusEl.textContent = "OK.";
+        out.textContent = JSON.stringify(data.data, null, 2);
+
+      } catch (e) {
+        statusEl.textContent = "Lỗi mạng / backend.";
+        out.textContent = String(e);
+      }
+    }
+
+    btn.addEventListener("click", runSearch);
+    codeEl.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") runSearch();
+    });
+  </script>
+</body>
+</html>
