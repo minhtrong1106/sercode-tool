@@ -109,5 +109,7 @@ def search():
         return jsonify({"ok": False, "error": str(e)}), 500
 
 
+#if __name__ == "__main__":
+    #APP.run(host="0.0.0.0", port=8080, debug=True)
 if __name__ == "__main__":
-    APP.run(host="0.0.0.0", port=8080, debug=True)
+    APP.run(host="0.0.0.0", port=10000)
