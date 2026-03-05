@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, send_file
 import os
 import time
 import requests
@@ -6,11 +6,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-APP = Flask(__name__, static_folder="static")
+APP = Flask(__name__)
 
-@APP.route("/")
+@APP.route("/", methods=["GET", "HEAD"])
 def home():
-    return send_from_directory("static", "index.html")
+    return send_file("index.html")
 
 @APP.route("/healthz")
 def healthz():
